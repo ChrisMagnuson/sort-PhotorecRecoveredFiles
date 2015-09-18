@@ -1,8 +1,8 @@
 # Sort files recoverd by Photorec
 
-Photorec does a great job when recovering deleted files. But the result is a huge unsorted unnamed amount of files. Especially for external hard drives which serve as backup of all personal data, sortig them is an endless job.
+Photorec does a great job when recovering deleted files. But the result is a huge, unsorted, unnamed amount of files. Especially for external hard drives serving as backup of all the personal data, sortig them is an endless job.
 
-This program helps you sorting your files. First of all, the files are copied to own folders for each file type. Second, jpegs are distinguished by the year when they have been taken and by the event. We thereby define an event as a time span during them photos are shot and that has at least a time span of 4 days without a photo to another event. 
+This program helps you sorting your files. First of all, the **files are copied to own folders for each file type**. Second, **jpegs are distinguished by the year** when they have been taken **and by the event**. We thereby define an event as a time span during them photos are taken. It has a delta of 4 days without a photo to another event. 
 
 
 ## Usage
