@@ -8,6 +8,8 @@ import exifread
 
 source = sys.argv[1]
 destination = sys.argv[2]
+images = []
+minEventDelta = 60 * 60 * 24 * 4 # 4 days in seconds
 
 
 def get_minimum_creation_time(exif_data):
@@ -38,20 +40,35 @@ def postprocess_image(sourceDir, imageDirectory, fileName):
         
     print time.asctime(creationTime)
 
-    year = time.strftime("%Y", creationTime)
-    month = time.strftime("%m")
+    images.append((time.mktime(creationTime), imagePath))
 
-    yearPath = os.path.join(imageDirectory, year)
 
+def createNewFolder(destinationRoot, year, eventNumber):
+    yearPath = os.path.join(destinationRoot, year)
     if not os.path.exists(yearPath):
         os.mkdir(yearPath)
+    eventPath = os.path.join(yearPath, str(eventNumber))
+    if not os.path.exists(eventPath):
+        os.mkdir(eventPath)
 
-    monthPath = os.path.join(yearPath, month)
 
-    if not os.path.exists(monthPath):
-        os.mkdir(monthPath)
+def write_images(destinationRoot):
+    sortedImages = sorted(images)
+    previousTime = None
+    eventNumber = 0
 
-    shutil.copy(imagePath, os.path.join(monthPath, file))
+    for imageTuple in sortedImages:
+        t = time.gmtime(imageTuple[0])
+        year = time.strftime("%Y", t)
+        if (previousTime == None) or ((previousTime + minEventDelta) < imageTuple[0]):
+            previousTime = imageTuple[0]
+            eventNumber = eventNumber + 1
+            createNewFolder(destinationRoot, year, eventNumber)
+        
+        previousTime = imageTuple[0]
+
+        destination = os.path.join(destinationRoot, year, str(eventNumber))
+        shutil.copy(imageTuple[1], destination)
 
 
 while not os.path.exists(source):
@@ -71,10 +88,11 @@ for root, dirs, files in os.walk(source, topdown=False):
         
         if extension == "JPG":
             postprocess_image(root, destinationPath, file)
-            print "sorted jpg"
         else:
             if os.path.exists(os.path.join(destinationPath,file)):
                 print("WARNING: this file was not copied :" + os.path.join(root,file))
                 shutil.copy(os.path.join(root,file), os.path.join(destination, extension, str(time.time()) + file))
             else:
                 shutil.copy(os.path.join(root,file), destinationPath)
+
+write_images(os.path.join(destination, "JPG"))
