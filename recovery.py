@@ -8,11 +8,11 @@ import exifread
 
 source = sys.argv[1]
 destination = sys.argv[2]
-images = []
+
 minEventDelta = 60 * 60 * 24 * 4 # 4 days in seconds
 
 
-def get_minimum_creation_time(exif_data):
+def getMinimumCreationTime(exif_data):
     creationTime = None
     dateTime = exif_data.get('DateTime')
     dateTimeOriginal = exif_data.get('EXIF DateTimeOriginal')
@@ -26,11 +26,11 @@ def get_minimum_creation_time(exif_data):
         creationTime = dateTimeDigitized
     return creationTime
 
-def postprocess_image(sourceDir, imageDirectory, fileName):
+def postprocessImage(images, sourceDir, imageDirectory, fileName):
     imagePath = os.path.join(sourceDir, fileName)
     image = open(imagePath, 'rb')
     exifTags = exifread.process_file(image)
-    creationTime = get_minimum_creation_time(exifTags)
+    creationTime = getMinimumCreationTime(exifTags)
 
     # distinct different time types
     if creationTime is None:
@@ -52,7 +52,7 @@ def createNewFolder(destinationRoot, year, eventNumber):
         os.mkdir(eventPath)
 
 
-def write_images(destinationRoot):
+def writeImages(images, destinationRoot):
     sortedImages = sorted(images)
     previousTime = None
     eventNumber = 0
@@ -71,6 +71,7 @@ def write_images(destinationRoot):
         shutil.copy(imageTuple[1], destination)
 
 
+images = []
 while not os.path.exists(source):
     source = raw_input('Enter a valid source directory\n')
 while not os.path.exists(destination):
@@ -87,7 +88,7 @@ for root, dirs, files in os.walk(source, topdown=False):
             os.mkdir(destinationPath)
         
         if extension == "JPG":
-            postprocess_image(root, destinationPath, file)
+            postprocessImage(root, destinationPath, file)
         else:
             if os.path.exists(os.path.join(destinationPath,file)):
                 print("WARNING: this file was not copied :" + os.path.join(root,file))
@@ -95,4 +96,4 @@ for root, dirs, files in os.walk(source, topdown=False):
             else:
                 shutil.copy(os.path.join(root,file), destinationPath)
 
-write_images(os.path.join(destination, "JPG"))
+writeImages(os.path.join(destination, "JPG"))
