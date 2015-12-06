@@ -2,21 +2,28 @@
 import os
 import os.path
 import sys
-import jpgSorter
-import time
+import jpgSorter, numberOfFilesPerFolderLimiter
 import shutil
-from time import gmtime, strftime
+from time import localtime, strftime
+import math
 
 
-def getFolderSizeInGb(start_path = '.'):
-    total_size = 0
+def getNumberOfFilesInFolderRecursively(start_path = '.'):
+    numberOfFiles = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
         for f in filenames:
             fp = os.path.join(dirpath, f)
-            total_size += os.path.getsize(fp)
-    return int(total_size / 1024 / 1024 / 1024)
+            if(os.path.isfile(fp)):
+            	numberOfFiles += 1
+    return numberOfFiles
 
+def getNumberOfFilesInFolder(path):
+	return len(os.listdir(path))
 
+def log(logString):
+	print(strftime("%H:%M:%S", localtime()) + ": " + logString)
+
+maxNumberOfFilesPerFolder = 500
 source = None
 destination = None
 
@@ -28,32 +35,40 @@ else:
 	destination = sys.argv[2]
 	print("Destination directory: " + destination)
 
+if(len(sys.argv) > 3):
+	maxNumberOfFilesPerFolder = int(sys.argv[3])
+
 while ((source is None) or (not os.path.exists(source))):
 	source = input('Enter a valid source directory\n')
 while ((destination is None) or (not os.path.exists(destination))):
 	destination = input('Enter a valid destination directory\n')
 
-totalAmountToCopy = str(getFolderSizeInGb(source))
-print("Files to copy: " + totalAmountToCopy + " GB.")
+totalAmountToCopy = str(getNumberOfFilesInFolderRecursively(source))
+print("Files to copy: " + totalAmountToCopy)
 
-images = []
+
+fileCounter = 0
 for root, dirs, files in os.walk(source, topdown=False):
-	print (strftime("%H:%M:%S", gmtime()) + ": " + str(getFolderSizeInGb(destination)) + " / " + totalAmountToCopy + " GB processed.")
 	for file in files:
 		extension = os.path.splitext(file)[1][1:].upper()
-		path = os.path.join(root,file)
+		sourcePath = os.path.join(root, file)
 		
-		destinationPath = os.path.join(destination, extension)
+		destinationDirectory = os.path.join(destination, extension)
 
-		if not os.path.exists(destinationPath):
-			os.mkdir(destinationPath)
+		if not os.path.exists(destinationDirectory):
+			os.mkdir(destinationDirectory)
 		
-		if extension == "JPG":
-			jpgSorter.postprocessImage(images, root, destinationPath, file)
-		else:
-			if os.path.exists(os.path.join(destinationPath, file)):
-				shutil.copy(os.path.join(root,file), os.path.join(destination, extension, str(time.time()) + file))
-			else:
-				shutil.copy(os.path.join(root,file), destinationPath)
+		fileName = str(fileCounter) + "." + extension.lower()
+		destinationFile = os.path.join(destinationDirectory, fileName)
+		if not os.path.exists(destinationFile):
+			shutil.copy(sourcePath, destinationFile)
 
-jpgSorter.writeImages(images, os.path.join(destination, "JPG"))
+		fileCounter += 1
+		if((fileCounter % 100) is 0):
+			log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
+
+log("start special file treatment")
+jpgSorter.postprocessImages(os.path.join(destination, "JPG"))
+
+log("assure max file per folder number")
+numberOfFilesPerFolderLimiter.limitFilesPerFolder(destination, maxNumberOfFilesPerFolder)
