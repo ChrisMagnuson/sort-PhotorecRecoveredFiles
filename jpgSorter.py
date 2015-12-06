@@ -1,4 +1,5 @@
 import os.path
+import ntpath
 import exifread
 from time import localtime, strftime, strptime, mktime
 import shutil
@@ -72,13 +73,18 @@ def writeImages(images, destinationRoot):
     today = strftime("%d/%m/%Y")
 
     for imageTuple in sortedImages:
+        destination = ""
+        destinationFilePath = ""
         t = localtime(imageTuple[0])
         year = strftime("%Y", t)
         creationDate = strftime("%d/%m/%Y", t)
+        fileName = ntpath.basename(imageTuple[1])
+
         if(creationDate == today):
             createUnknownDateFolder(destinationRoot)
             destination = os.path.join(destinationRoot, unknownDateFolderName)
-            shutil.move(imageTuple[1], destination)
+            destinationFilePath = os.path.join(destination, fileName)
+            
         else:
             if (previousTime == None) or ((previousTime + minEventDelta) < imageTuple[0]):
                 previousTime = imageTuple[0]
@@ -91,9 +97,15 @@ def writeImages(images, destinationRoot):
             # it may be possible that an event covers 2 years. 
             # in such a case put all the images to the even in the old year
             if not (os.path.exists(destination)):
-                destination = os.path.join(destinationRoot, year-1, str(eventNumber))
+                destination = os.path.join(destinationRoot, str(int(year) - 1), str(eventNumber))
 
+            destinationFilePath = os.path.join(destination, fileName)
+
+        if not (os.path.exists(destinationFilePath)):
             shutil.move(imageTuple[1], destination)
+        else:
+            if (os.path.exists(imageTuple[1])):
+                os.remove(imageTuple[1])
 
 
 def postprocessImages(imageDirectory):
