@@ -6,6 +6,7 @@ import jpgSorter, numberOfFilesPerFolderLimiter
 import shutil
 from time import localtime, strftime
 import math
+import multiprocessing as mp
 
 
 def getNumberOfFilesInFolderRecursively(start_path = '.'):
@@ -17,11 +18,30 @@ def getNumberOfFilesInFolderRecursively(start_path = '.'):
             	numberOfFiles += 1
     return numberOfFiles
 
+
 def getNumberOfFilesInFolder(path):
 	return len(os.listdir(path))
 
+
 def log(logString):
 	print(strftime("%H:%M:%S", localtime()) + ": " + logString)
+
+
+def moveFile(file, destination):
+	extension = os.path.splitext(file)[1][1:].upper()
+	sourcePath = os.path.join(root, file)
+	
+	destinationDirectory = os.path.join(destination, extension)
+
+	if not os.path.exists(destinationDirectory):
+		os.mkdir(destinationDirectory)
+	
+	fileName = str(fileCounter) + "." + extension.lower()
+	destinationFile = os.path.join(destinationDirectory, fileName)
+	if not os.path.exists(destinationFile):
+		shutil.copy(sourcePath, destinationFile)
+
+
 
 maxNumberOfFilesPerFolder = 500
 source = None
@@ -43,12 +63,15 @@ while ((source is None) or (not os.path.exists(source))):
 while ((destination is None) or (not os.path.exists(destination))):
 	destination = input('Enter a valid destination directory\n')
 
-totalAmountToCopy = str(getNumberOfFilesInFolderRecursively(source))
+fileNumber = getNumberOfFilesInFolderRecursively(source)
+onePercentFiles = int(fileNumber/100)
+totalAmountToCopy = str(fileNumber)
 print("Files to copy: " + totalAmountToCopy)
 
 
 fileCounter = 0
 for root, dirs, files in os.walk(source, topdown=False):
+
 	for file in files:
 		extension = os.path.splitext(file)[1][1:].upper()
 		sourcePath = os.path.join(root, file)
@@ -61,10 +84,10 @@ for root, dirs, files in os.walk(source, topdown=False):
 		fileName = str(fileCounter) + "." + extension.lower()
 		destinationFile = os.path.join(destinationDirectory, fileName)
 		if not os.path.exists(destinationFile):
-			shutil.copy(sourcePath, destinationFile)
+			shutil.copy2(sourcePath, destinationFile)
 
 		fileCounter += 1
-		if((fileCounter % 100) is 0):
+		if((fileCounter % onePercentFiles) is 0):
 			log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
 
 log("start special file treatment")
