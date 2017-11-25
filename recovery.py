@@ -30,12 +30,12 @@ def log(logString):
 def moveFile(file, destination):
 	extension = os.path.splitext(file)[1][1:].upper()
 	sourcePath = os.path.join(root, file)
-	
+
 	destinationDirectory = os.path.join(destination, extension)
 
 	if not os.path.exists(destinationDirectory):
 		os.mkdir(destinationDirectory)
-	
+
 	fileName = str(fileCounter) + "." + extension.lower()
 	destinationFile = os.path.join(destinationDirectory, fileName)
 	if not os.path.exists(destinationFile):
@@ -75,12 +75,12 @@ for root, dirs, files in os.walk(source, topdown=False):
 	for file in files:
 		extension = os.path.splitext(file)[1][1:].upper()
 		sourcePath = os.path.join(root, file)
-		
+
 		destinationDirectory = os.path.join(destination, extension)
 
 		if not os.path.exists(destinationDirectory):
 			os.mkdir(destinationDirectory)
-		
+
 		fileName = str(fileCounter) + "." + extension.lower()
 		destinationFile = os.path.join(destinationDirectory, fileName)
 		if not os.path.exists(destinationFile):

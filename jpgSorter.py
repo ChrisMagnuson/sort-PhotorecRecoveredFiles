@@ -18,7 +18,7 @@ def getMinimumCreationTime(exif_data):
         if (dateTimeOriginal is None):
             # case 1/9: dateTime, dateTimeOriginal, and dateTimeDigitized = None
             # case 2/9: dateTime and dateTimeOriginal = None, then use dateTimeDigitized
-            creationTime = dateTimeDigitized 
+            creationTime = dateTimeDigitized
         else:
             # case 3/9: dateTime and dateTimeDigitized = None, then use dateTimeOriginal
             # case 4/9: dateTime = None, prefere dateTimeOriginal over dateTimeDigitized
@@ -33,7 +33,7 @@ def postprocessImage(images, imageDirectory, fileName):
     imagePath = os.path.join(imageDirectory, fileName)
     image = open(imagePath, 'rb')
     creationTime = None
-    try: 
+    try:
         exifTags = exifread.process_file(image, details=False)
         creationTime = getMinimumCreationTime(exifTags)
     except:
@@ -89,7 +89,7 @@ def writeImages(images, destinationRoot, splitByMonth=False):
             createUnknownDateFolder(destinationRoot)
             destination = os.path.join(destinationRoot, unknownDateFolderName)
             destinationFilePath = os.path.join(destination, fileName)
-            
+
         else:
             if (previousTime == None) or ((previousTime + minEventDelta) < imageTuple[0]):
                 eventNumber = eventNumber + 1
