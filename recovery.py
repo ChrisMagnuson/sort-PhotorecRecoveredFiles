@@ -91,7 +91,7 @@ for root, dirs, files in os.walk(source, topdown=False):
 			log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
 
 log("start special file treatment")
-jpgSorter.postprocessImages(os.path.join(destination, "JPG"))
+jpgSorter.postprocessImages(os.path.join(destination, "JPG"), False)
 
 log("assure max file per folder number")
 numberOfFilesPerFolderLimiter.limitFilesPerFolder(destination, maxNumberOfFilesPerFolder)
