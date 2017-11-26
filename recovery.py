@@ -42,21 +42,40 @@ def moveFile(file, destination):
         shutil.copy(sourcePath, destinationFile)
 
 
+def get_args():
+    import argparse
+
+    description = (
+        "Sort files recoverd by Photorec.\n"
+        "The input files are first copied to the destination, sorted by file type.\n"
+        "Then JPG files are sorted based on creation year (and optionally month).\n"
+        "Finally any directories containing more than a maximum number of files are accordingly split into separate directories."
+    )
+
+    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('source', metavar='src', type=str, help='source directory with files recovered by Photorec')
+    parser.add_argument('destination', metavar='dest', type=str, help='destination directory to write sorted files to')
+    parser.add_argument('-n', '--max-per-dir', type=int, default=500, required=False, help='maximum number of files per directory')
+    parser.add_argument('-m', '--split-months', action='store_true', required=False, help='split JPEG files not only by year but by month as well')
+
+    return parser.parse_args()
+
+
 
 maxNumberOfFilesPerFolder = 500
+splitMonths = False
 source = None
 destination = None
 
-if(len(sys.argv) < 3):
-    print("Enter source and destination: python sort.py source/path destination/path")
-else:
-    source = sys.argv[1]
-    print("Source directory: " + source)
-    destination = sys.argv[2]
-    print("Destination directory: " + destination)
 
-if(len(sys.argv) > 3):
-    maxNumberOfFilesPerFolder = int(sys.argv[3])
+args = get_args()
+source = args.source
+destination = args.destination
+maxNumberOfFilesPerFolder = args.max_per_dir
+splitMonths = args.split_months
+
+print("Reading from source '%s', writing to destination '%s' (max %i files per directory, splitting by year %s)." %
+    (source, destination, maxNumberOfFilesPerFolder, splitMonths and "and month" or "only"))
 
 while ((source is None) or (not os.path.exists(source))):
     source = input('Enter a valid source directory\n')
@@ -91,7 +110,7 @@ for root, dirs, files in os.walk(source, topdown=False):
             log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
 
 log("start special file treatment")
-jpgSorter.postprocessImages(os.path.join(destination, "JPG"), False)
+jpgSorter.postprocessImages(os.path.join(destination, "JPG"), splitMonths)
 
 log("assure max file per folder number")
 numberOfFilesPerFolderLimiter.limitFilesPerFolder(destination, maxNumberOfFilesPerFolder)
