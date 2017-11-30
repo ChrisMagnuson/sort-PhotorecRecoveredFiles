@@ -1,8 +1,8 @@
 import os.path
 import ntpath
-import exifread
 from time import localtime, strftime, strptime, mktime
 import shutil
+import exifread
 
 minEventDelta = 60 * 60 * 24 * 4 # 4 days in seconds
 unknownDateFolderName = "date-unknown"

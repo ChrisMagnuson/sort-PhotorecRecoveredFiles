@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import os
 import os.path
-import sys
-import jpgSorter, numberOfFilesPerFolderLimiter
 import shutil
-from time import localtime, strftime
 import math
-import multiprocessing as mp
+import multiprocessing as mpfrom time 
+import localtime, strftime
 
+
+import jpgSorter
+import numberOfFilesPerFolderLimiter
 
 def getNumberOfFilesInFolderRecursively(start_path = '.'):
     numberOfFiles = 0
