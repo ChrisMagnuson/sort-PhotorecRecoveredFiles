@@ -7,6 +7,12 @@ This program helps you sorting your files. First of all, the **files are copied 
 
 ## Usage
 
+First install the package [exifread](https://pypi.python.org/pypi/ExifRead):
+
+```pip install exifread```
+
+Then run the sorter:
+
 ```python recovery.py <path to files recovered by Photorec> <destination>```
 
 This copies the recovered file to their file type folder in the destination directory. The recovered files are not modified. If a file already exists in the destination directory, it is skipped. Hence you can interrupt the process with Ctrl+C and continue afterwards.
