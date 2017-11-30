@@ -57,6 +57,7 @@ def get_args():
     parser.add_argument('destination', metavar='dest', type=str, help='destination directory to write sorted files to')
     parser.add_argument('-n', '--max-per-dir', type=int, default=500, required=False, help='maximum number of files per directory')
     parser.add_argument('-m', '--split-months', action='store_true', required=False, help='split JPEG files not only by year but by month as well')
+    parser.add_argument('-k', '--keep_filename', action='store_true', required=False, help='keeps the original filenames when copying')
 
     return parser.parse_args()
 
@@ -66,6 +67,7 @@ maxNumberOfFilesPerFolder = 500
 splitMonths = False
 source = None
 destination = None
+keepFilename = False
 
 
 args = get_args()
@@ -73,9 +75,14 @@ source = args.source
 destination = args.destination
 maxNumberOfFilesPerFolder = args.max_per_dir
 splitMonths = args.split_months
+keepFilename = args.keep_filename
 
 print("Reading from source '%s', writing to destination '%s' (max %i files per directory, splitting by year %s)." %
     (source, destination, maxNumberOfFilesPerFolder, splitMonths and "and month" or "only"))
+if keepFilename:
+    print("I will keep you filenames as they are")
+else:
+    print("I will rename your files like '1.jpg'")
 
 while ((source is None) or (not os.path.exists(source))):
     source = input('Enter a valid source directory\n')
@@ -99,8 +106,11 @@ for root, dirs, files in os.walk(source, topdown=False):
 
         if not os.path.exists(destinationDirectory):
             os.mkdir(destinationDirectory)
+        if keepFilename:
+            fileName = file
+        else:
+            fileName = str(fileCounter) + "." + extension.lower()
 
-        fileName = str(fileCounter) + "." + extension.lower()
         destinationFile = os.path.join(destinationDirectory, fileName)
         if not os.path.exists(destinationFile):
             shutil.copy2(sourcePath, destinationFile)
