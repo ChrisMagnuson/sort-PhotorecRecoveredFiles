@@ -56,6 +56,7 @@ def get_args():
     parser.add_argument('-n', '--max-per-dir', type=int, default=500, required=False, help='maximum number of files per directory')
     parser.add_argument('-m', '--split-months', action='store_true', required=False, help='split JPEG files not only by year but by month as well')
     parser.add_argument('-k', '--keep_filename', action='store_true', required=False, help='keeps the original filenames when copying')
+    parser.add_argument('-d', '--min-event-delta', type=int, default=4, required=False, help='minimum delta in days between two days')
 
     return parser.parse_args()
 
@@ -74,6 +75,7 @@ destination = args.destination
 maxNumberOfFilesPerFolder = args.max_per_dir
 splitMonths = args.split_months
 keepFilename = args.keep_filename
+minEventDeltaDays = args.min_event_delta
 
 print("Reading from source '%s', writing to destination '%s' (max %i files per directory, splitting by year %s)." %
     (source, destination, maxNumberOfFilesPerFolder, splitMonths and "and month" or "only"))
@@ -118,7 +120,7 @@ for root, dirs, files in os.walk(source, topdown=False):
             log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
 
 log("start special file treatment")
-jpgSorter.postprocessImages(os.path.join(destination, "JPG"), splitMonths)
+jpgSorter.postprocessImages(os.path.join(destination, "JPG"), minEventDeltaDays, splitMonths)
 
 log("assure max file per folder number")
 numberOfFilesPerFolderLimiter.limitFilesPerFolder(destination, maxNumberOfFilesPerFolder)

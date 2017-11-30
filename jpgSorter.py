@@ -4,7 +4,6 @@ from time import localtime, strftime, strptime, mktime
 import shutil
 import exifread
 
-minEventDelta = 60 * 60 * 24 * 4 # 4 days in seconds
 unknownDateFolderName = "date-unknown"
 
 def getMinimumCreationTime(exif_data):
@@ -69,7 +68,8 @@ def createUnknownDateFolder(destinationRoot):
     path = os.path.join(destinationRoot, unknownDateFolderName)
     createPath(path)
 
-def writeImages(images, destinationRoot, splitByMonth=False):
+def writeImages(images, destinationRoot, minEventDeltaDays, splitByMonth=False):
+    minEventDelta = minEventDeltaDays * 60 * 60 * 24 # convert in seconds
     sortedImages = sorted(images)
     previousTime = None
     eventNumber = 0
@@ -117,10 +117,10 @@ def writeImages(images, destinationRoot, splitByMonth=False):
                 os.remove(imageTuple[1])
 
 
-def postprocessImages(imageDirectory, splitByMonth):
+def postprocessImages(imageDirectory, minEventDeltaDays, splitByMonth):
     images = []
     for root, dirs, files in os.walk(imageDirectory):
         for file in files:
             postprocessImage(images, imageDirectory, file)
 
-    writeImages(images, imageDirectory, splitByMonth)
+    writeImages(images, imageDirectory, minEventDeltaDays, splitByMonth)
