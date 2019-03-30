@@ -6,7 +6,7 @@ This program helps you sort the files that Photorec recovers. First, the **files
 
 ## Origin and Credits
 
-This is a fork of tfrdidi's [much-improved fork](https://github.com/tfrdidi/sort-PhotorecRecoveredFiles) of Chris Masterson's [sort-PhotorecRecoveredFiles](https://github.com/ChrisMagnuson/sort-PhotorecRecoveredFiles). The code of this version is unchanged from tifrdidi's version, and was created purely for the purpose of enabling issue tracking and logging the issues I've come across during usage in the hope that others more adept than me at Python can either add to them or fix them. The bulk of this readme was also written by tfrdidi, and I slightly improved the English for the purpose of making it a little clearer.
+This is a fork of tfrdidi's [much-improved fork](https://github.com/tfrdidi/sort-PhotorecRecoveredFiles) of Chris Masterson's [sort-PhotorecRecoveredFiles](https://github.com/ChrisMagnuson/sort-PhotorecRecoveredFiles). The code of this version is unchanged from tifrdidi's version, and was created purely for the purpose of enabling issue tracking and logging the issues I've come across during usage in the hope that someone more adept than me at Python either fix them or contribute to them. The bulk of this readme was also written by tfrdidi, and I improved the English slightly for the purpose of making it clearer.
 
 ## Usage
 
