@@ -116,7 +116,7 @@ for root, dirs, files in os.walk(source, topdown=False):
             shutil.copy2(sourcePath, destinationFile)
 
         fileCounter += 1
-        if((fileCounter % onePercentFiles) is 0):
+        if((fileCounter % onePercentFiles) == 0):
             log(str(fileCounter) + " / " + totalAmountToCopy + " processed.")
 
 log("start special file treatment")
