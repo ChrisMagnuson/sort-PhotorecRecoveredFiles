@@ -9,6 +9,8 @@ unknownDateFolderName = "date-unknown"
 def getMinimumCreationTime(exif_data):
     creationTime = None
     dateTime = exif_data.get('DateTime')
+    if (dateTime is None):
+        dateTime = exif_data.get('Image DateTime')
     dateTimeOriginal = exif_data.get('EXIF DateTimeOriginal')
     dateTimeDigitized = exif_data.get('EXIF DateTimeDigitized')
 
