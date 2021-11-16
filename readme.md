@@ -78,7 +78,8 @@ For the case you want to reduce or increase the timespan between events, simply 
 ```python recovery.py <path to files recovered by Photorec> <destination> -d10```
 
 
-#### Rename jpg-files with <Date>_<Time> from EXIF data if possible
+
+#### Rename jpg-files with "<Date>_<Time>" from EXIF data if possible
 
 If the original jpg image files were named by <Date>_<Time> it might be useful to rename the recovered files in the same way. This can be done by adding the parameter -j.
 
