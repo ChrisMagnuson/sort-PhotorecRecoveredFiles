@@ -90,7 +90,10 @@ while ((destination is None) or (not os.path.exists(destination))):
     destination = input('Enter a valid destination directory\n')
 
 fileNumber = getNumberOfFilesInFolderRecursively(source)
-onePercentFiles = int(fileNumber/100)
+if fileNumber > 100:
+    onePercentFiles = int(fileNumber/100)
+else:
+    onePercentFiles = fileNumber
 totalAmountToCopy = str(fileNumber)
 print("Files to copy: " + totalAmountToCopy)
 
