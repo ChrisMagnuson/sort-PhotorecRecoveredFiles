@@ -5,6 +5,8 @@ from time import localtime, strftime
 import shutil
 import jpgSorter
 import numberOfFilesPerFolderLimiter
+import exifread
+from time import localtime, strftime, strptime, mktime
 
 
 def getNumberOfFilesInFolderRecursively(start_path = '.'):
@@ -57,6 +59,7 @@ def get_args():
     parser.add_argument('-m', '--split-months', action='store_true', required=False, help='split JPEG files not only by year but by month as well')
     parser.add_argument('-k', '--keep_filename', action='store_true', required=False, help='keeps the original filenames when copying')
     parser.add_argument('-d', '--min-event-delta', type=int, default=4, required=False, help='minimum delta in days between two days')
+    parser.add_argument('-j', '--date_time_filename', action='store_true', required=False, help='sets the filename to the exif date and time if possible - otherwise set filename depending on -k')    
 
     return parser.parse_args()
 
@@ -67,7 +70,7 @@ splitMonths = False
 source = None
 destination = None
 keepFilename = False
-
+date_time_filename = False
 
 args = get_args()
 source = args.source
@@ -75,12 +78,15 @@ destination = args.destination
 maxNumberOfFilesPerFolder = args.max_per_dir
 splitMonths = args.split_months
 keepFilename = args.keep_filename
+date_time_filename = args.date_time_filename
 minEventDeltaDays = args.min_event_delta
 
 print("Reading from source '%s', writing to destination '%s' (max %i files per directory, splitting by year %s)." %
     (source, destination, maxNumberOfFilesPerFolder, splitMonths and "and month" or "only"))
 if keepFilename:
     print("I will keep you filenames as they are")
+elif date_time_filename:
+    print("If possible I will rename your files like <Date>_<Time>.jpg - otherwise keep you filenames as they are")
 else:
     print("I will rename your files like '1.jpg'")
 
@@ -106,8 +112,26 @@ for root, dirs, files in os.walk(source, topdown=False):
 
         if not os.path.exists(destinationDirectory):
             os.mkdir(destinationDirectory)
+        
         if keepFilename:
             fileName = file
+        
+        elif date_time_filename:
+            index = 0
+            image = open(sourcePath, 'rb')
+            exifTags = exifread.process_file(image, details=False)
+            image.close()
+            creationTime = jpgSorter.getMinimumCreationTime(exifTags)
+            try:
+                creationTime = strptime(str(creationTime), "%Y:%m:%d %H:%M:%S")
+                creationTime = strftime("%Y%m%d_%H%M%S", creationTime)
+                fileName = str(creationTime) + "." + extension.lower()
+                while os.path.exists(os.path.join(destinationDirectory, fileName)):
+                    index += 1
+                    fileName = str(creationTime) + "(" + str(index) + ")" + "." + extension.lower()
+            except:
+                fileName = file
+
         else:
             fileName = str(fileCounter) + "." + extension.lower()
 
