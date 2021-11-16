@@ -76,3 +76,24 @@ Use the -k parameter to keep the original filenames:
 
 For the case you want to reduce or increase the timespan between events, simply use the parameter -d. The default is 4:
 ```python recovery.py <path to files recovered by Photorec> <destination> -d10```
+
+
+#### Rename jpg-files with <Date>_<Time> from EXIF data if possible
+
+If the original jpg image files were named by <Date>_<Time> it might be useful to rename the recovered files in the same way. This can be done by adding the parameter -j.
+```python recovery.py <path to files recovered by Photorec> <destination> -j```
+
+If no EXIF data can be retrieved the original filename is kept.
+
+In case there are two or more files with the same EXIF data the filename is extended by an index to avoid overwritng files.
+
+The result will look like:
+```
+20210121_134407.jpg
+20210122_145205.jpg
+20210122_145205(1).jpg
+20210122_145205(2).jpg
+20210122_145813.jpg
+20210122_153155.jpg
+```
+

@@ -59,7 +59,7 @@ def get_args():
     parser.add_argument('-m', '--split-months', action='store_true', required=False, help='split JPEG files not only by year but by month as well')
     parser.add_argument('-k', '--keep_filename', action='store_true', required=False, help='keeps the original filenames when copying')
     parser.add_argument('-d', '--min-event-delta', type=int, default=4, required=False, help='minimum delta in days between two days')
-    parser.add_argument('-j', '--date_time_filename', action='store_true', required=False, help='sets the filename to the exif date and time if possible - otherwise set filename depending on -k')    
+    parser.add_argument('-j', '--date_time_filename', action='store_true', required=False, help='sets the filename to the exif date and time if possible - otherwise keep the original filename')    
 
     return parser.parse_args()
 
@@ -86,7 +86,7 @@ print("Reading from source '%s', writing to destination '%s' (max %i files per d
 if keepFilename:
     print("I will keep you filenames as they are")
 elif date_time_filename:
-    print("If possible I will rename your files like <Date>_<Time>.jpg - otherwise keep you filenames as they are")
+    print("If possible I will rename your files like <Date>_<Time>.jpg - otherwise keep the filenames as they are")
 else:
     print("I will rename your files like '1.jpg'")
 
