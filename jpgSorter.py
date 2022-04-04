@@ -1,11 +1,10 @@
 import os.path
 import ntpath
-import exifread
 from time import localtime, strftime, strptime, mktime
 import shutil
+import exifread
 
-minEventDelta = 60 * 60 * 24 * 4 # 4 days in seconds
-unknownDateFolderName = "Datum unbekannt"
+unknownDateFolderName = "date-unknown"
 
 def getMinimumCreationTime(exif_data):
     creationTime = None
@@ -18,7 +17,7 @@ def getMinimumCreationTime(exif_data):
         if (dateTimeOriginal is None):
             # case 1/9: dateTime, dateTimeOriginal, and dateTimeDigitized = None
             # case 2/9: dateTime and dateTimeOriginal = None, then use dateTimeDigitized
-            creationTime = dateTimeDigitized 
+            creationTime = dateTimeDigitized
         else:
             # case 3/9: dateTime and dateTimeDigitized = None, then use dateTimeOriginal
             # case 4/9: dateTime = None, prefere dateTimeOriginal over dateTimeDigitized
@@ -33,7 +32,7 @@ def postprocessImage(images, imageDirectory, fileName):
     imagePath = os.path.join(imageDirectory, fileName)
     image = open(imagePath, 'rb')
     creationTime = None
-    try: 
+    try:
         exifTags = exifread.process_file(image, details=False)
         creationTime = getMinimumCreationTime(exifTags)
     except:
@@ -51,25 +50,30 @@ def postprocessImage(images, imageDirectory, fileName):
     images.append((mktime(creationTime), imagePath))
     image.close()
 
+# Creates the requested path recursively.
+def createPath(newPath):
+    if not os.path.exists(newPath):
+        os.makedirs(newPath)
 
-def createNewFolder(destinationRoot, year, eventNumber):
-    yearPath = os.path.join(destinationRoot, year)
-    if not os.path.exists(yearPath):
-        os.mkdir(yearPath)
-    eventPath = os.path.join(yearPath, str(eventNumber))
-    if not os.path.exists(eventPath):
-        os.mkdir(eventPath)
+# Pass None for month to create 'year/eventNumber' directories instead of 'year/month/eventNumber'.
+def createNewFolder(destinationRoot, year, month, eventNumber):
+    if month is not None:
+        newPath = os.path.join(destinationRoot, year, month, str(eventNumber))
+    else:
+        newPath = os.path.join(destinationRoot, year, str(eventNumber))
+
+    createPath(newPath)
 
 def createUnknownDateFolder(destinationRoot):
     path = os.path.join(destinationRoot, unknownDateFolderName)
-    if not os.path.exists(path):
-        os.mkdir(path)
+    createPath(path)
 
-
-def writeImages(images, destinationRoot):
+def writeImages(images, destinationRoot, minEventDeltaDays, splitByMonth=False):
+    minEventDelta = minEventDeltaDays * 60 * 60 * 24 # convert in seconds
     sortedImages = sorted(images)
     previousTime = None
     eventNumber = 0
+    previousDestination = None
     today = strftime("%d/%m/%Y")
 
     for imageTuple in sortedImages:
@@ -77,6 +81,7 @@ def writeImages(images, destinationRoot):
         destinationFilePath = ""
         t = localtime(imageTuple[0])
         year = strftime("%Y", t)
+        month = splitByMonth and strftime("%m", t) or None
         creationDate = strftime("%d/%m/%Y", t)
         fileName = ntpath.basename(imageTuple[1])
 
@@ -84,21 +89,25 @@ def writeImages(images, destinationRoot):
             createUnknownDateFolder(destinationRoot)
             destination = os.path.join(destinationRoot, unknownDateFolderName)
             destinationFilePath = os.path.join(destination, fileName)
-            
+
         else:
             if (previousTime == None) or ((previousTime + minEventDelta) < imageTuple[0]):
-                previousTime = imageTuple[0]
                 eventNumber = eventNumber + 1
-                createNewFolder(destinationRoot, year, eventNumber)
-            
+                createNewFolder(destinationRoot, year, month, eventNumber)
+
             previousTime = imageTuple[0]
 
-            destination = os.path.join(destinationRoot, year, str(eventNumber))
-            # it may be possible that an event covers 2 years. 
-            # in such a case put all the images to the even in the old year
-            if not (os.path.exists(destination)):
-                destination = os.path.join(destinationRoot, str(int(year) - 1), str(eventNumber))
+            destComponents = [destinationRoot, year, month, str(eventNumber)]
+            destComponents = [v for v in destComponents if v is not None]
+            destination = os.path.join(*destComponents)
 
+            # it may be possible that an event covers 2 years.
+            # in such a case put all the images to the event in the old year
+            if not (os.path.exists(destination)):
+                destination = previousDestination
+                # destination = os.path.join(destinationRoot, str(int(year) - 1), str(eventNumber))
+
+            previousDestination = destination
             destinationFilePath = os.path.join(destination, fileName)
 
         if not (os.path.exists(destinationFilePath)):
@@ -108,10 +117,10 @@ def writeImages(images, destinationRoot):
                 os.remove(imageTuple[1])
 
 
-def postprocessImages(imageDirectory):
+def postprocessImages(imageDirectory, minEventDeltaDays, splitByMonth):
     images = []
     for root, dirs, files in os.walk(imageDirectory):
         for file in files:
             postprocessImage(images, imageDirectory, file)
 
-    writeImages(images, imageDirectory)
+    writeImages(images, imageDirectory, minEventDeltaDays, splitByMonth)
