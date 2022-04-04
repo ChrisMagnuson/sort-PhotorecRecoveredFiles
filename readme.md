@@ -4,10 +4,6 @@ Photorec does a great job when recovering deleted files. But the result is a hug
 
 This program sPRF helps you sorting your files. First of all, the **files are copied to own folders for each file type**. Second, **jpgs are distinguished by the year, and optionally by month as well** when they have been taken **and by the event**. We thereby define an event as a time span during them photos are taken. It has a delta of 4 days without a photo to another event. If no date from the past can be detected, these jpgs are put into one folder to be sorted manually.
 
-## Origin and Credits
-
-This is a fork of tfrdidi's [much-improved fork](https://github.com/tfrdidi/sort-PhotorecRecoveredFiles) of Chris Masterson's [sort-PhotorecRecoveredFiles](https://github.com/ChrisMagnuson/sort-PhotorecRecoveredFiles). The code of this version is unchanged from tifrdidi's version, and was created purely for the purpose of enabling issue tracking and logging the issues I've come across during usage in the hope that someone more adept than me at Python either fix them or contribute to them. The bulk of this readme was also written by tfrdidi, and I improved the English slightly for the purpose of making it clearer.
-
 ## Installation
 
 First install the package [exifread](https://pypi.python.org/pypi/ExifRead):
